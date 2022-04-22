@@ -6,6 +6,9 @@
     android:layout_height="match_parent">
 
     <Button
+        android:background="@drawable/button"
+        android:textColor="@color/primary_text"
+
         android:id="@+id/back_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -15,12 +18,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:textColor="@color/primary_text"
+
+        android:background="@drawable/button"
         android:id="@+id/forward_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Forward"
-        app:layout_constraintStart_toEndOf="@+id/back_btn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/back_btn"
         app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -28,7 +34,7 @@
 
         android:id="@+id/webView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/about_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,6 +43,9 @@
     </WebView>
 
     <Button
+        android:background="@drawable/button"
+        android:textColor="@color/primary_text"
+
         android:id="@+id/about_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
