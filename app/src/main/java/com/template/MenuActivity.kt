@@ -2,6 +2,7 @@ package com.template
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.AndroidException
 import android.util.Log
 import android.webkit.WebViewClient
 
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.template.databinding.ActivityMenuBinding
 import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLConverter
 import org.apache.poi.xwpf.usermodel.XWPFDocument
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException
 import java.io.BufferedReader
 
 import java.io.File
@@ -16,99 +18,73 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets
+import java.util.*
 
 
 class MenuActivity: AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
+    private lateinit var filesList: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        var input = assets.open("pril2_fns891_09122020.docx")
-//        var file = File.createTempFile("temp", ".docx", cacheDir )
-//        Log.d("TAG", "tempfile: " + file.absolutePath)
-//        var out = file.outputStream()
-//        input.use { it ->
-//            out.use{ it ->
-//                input.copyTo(out)
-//            }
-//        }
-////        input.close()
-//        out.close()
 
-//        val zipFile = ZipFile(file)
-//        val zipEntry = zipFile.getEntry("word/document.xml")
-//        var zipInput = zipFile.getInputStream(zipEntry)
-//
-//        var stringBuilder = StringBuilder()
-//        val reader = BufferedReader(InputStreamReader(zipInput, StandardCharsets.UTF_8))
-//
-//        try {
-//            var line = reader.readLine()
-//            while (line != null) {
-//                stringBuilder.append(line)
-//                line = reader.readLine()
-//            }
-//        } finally {
-//            reader.close()
-//        }
+        filesList = assets.list("pages")!!
+        Log.d("TAG", "pages: ${Arrays.toString(filesList)}")
+
+        var currentIndex = 0;
+        setIndexContent(currentIndex)
+
+        binding.aboutBtn.setOnClickListener { v->
+            var intent = Intent(this, AboutUsActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.backBtn.setOnClickListener { v->
+            if(currentIndex > 0) {
+                currentIndex -=1
+                setIndexContent(currentIndex)
+            }
+        }
+        binding.forwardBtn.setOnClickListener { v->
+            currentIndex += 1
+            setIndexContent(currentIndex)
+        }
+    }
 
 
-//        poi
-        val htmlFile = File.createTempFile("caaa", ".html", cacheDir)
-        Log.d("TAG", "temp: " + htmlFile.absolutePath)
+    fun setIndexContent(currentIndex: Int){
+        val htmlFile = File.createTempFile("tempHtml${currentIndex}", ".html", cacheDir)
+        convertDocxToHtml(currentIndex, htmlFile)
+        setFileToWebView(htmlFile)
+    }
 
-        val document = XWPFDocument(assets.open("pril2_fns891_09122020.docx"))
+    fun convertDocxToHtml(currentIndex: Int, htmlFile: File){
+        if(currentIndex < filesList!!.size){
+            var path = "pages/${filesList!![currentIndex]}"
+            Log.d("TAG", "path: ${path}")
+            val document = XWPFDocument(assets.open("pages/${filesList!![currentIndex]}"))
+            saveDocToCache(document, htmlFile)
+        }
+    }
+
+    private fun saveDocToCache(document: XWPFDocument, htmlFile: File){
         htmlFile.parentFile.mkdirs()
         val out = FileOutputStream(htmlFile)
         XHTMLConverter.getInstance().convert(document, out, null)
-
-
-        var input = htmlFile.inputStream()
-
-        var stringBuilder = StringBuilder()
-        val reader = BufferedReader(InputStreamReader(input, StandardCharsets.UTF_8))
-
-
-            var line = reader.readLine()
-            while (line != null) {
-                stringBuilder.append(line)
-                line = reader.readLine()
-            }
-
-        input.close()
-        reader.close()
-//        Log.d("TAG", "temp: " + stringBuilder.toString())
-
-
-
+        out.close()
+        document.close()
+    }
+    fun setFileToWebView(htmlFile: File){
         val urlWebView = binding.webView
         urlWebView.setWebViewClient(WebViewClient())
         urlWebView.getSettings().setJavaScriptEnabled(true)
         urlWebView.getSettings().setUseWideViewPort(true)
         urlWebView.getSettings().setAllowFileAccess(true)
-        val summary = "<html><body><p><strong>12345</strong></p>\n" +
-                "<p>&nbsp;</p>\n" +
-                "<p>&nbsp;</p>\n" +
-                "<p>&nbsp;</p>\n" +
-                "<p>67890Qwertyйцукен</p></body></html>"
-//        urlWebView.loadData(stringBuilder.toString(), "text/html", null)
+        urlWebView.settings.builtInZoomControls = true
         htmlFile.setReadable(true)
         urlWebView.loadUrl(htmlFile.absolutePath)
-
-
-//        urlWebView.lo
-        binding.aboutBtn.setOnClickListener { v->
-            var intent = Intent(this, AboutUsActivity::class.java)
-            startActivity(intent)
-        }
-//
-//        binding.backBtn.setOnClickListener { v-> binding.webView.findNext(true)}
-//        binding.forwardBtn.setOnClickListener { v-> binding.webView.findNext(true) }
-
-
     }
-
 }
