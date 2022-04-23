@@ -1,6 +1,5 @@
 package com.template
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.template.databinding.ActivityAboutBinding
@@ -20,8 +19,7 @@ class AboutUsActivity: AppCompatActivity() {
 
 
     override fun onBackPressed() {
-        val intent = Intent(this@AboutUsActivity, MenuActivity::class.java)
-        startActivity(intent)
+        finish()
         overridePendingTransition(R.anim.to, R.anim.from_0y)
     }
 }

@@ -11,9 +11,8 @@ import kotlinx.coroutines.*
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 
-class MainViewModel(var cacheDir: File, var fileNamesList: Array<String>, var assets: AssetManager): ViewModel() {
+class MainViewModel(private var cacheDir: File, private var fileNamesList: Array<String>, private var assets: AssetManager): ViewModel() {
 
 
     private lateinit var cacheFiles: Array<String>
@@ -23,24 +22,16 @@ class MainViewModel(var cacheDir: File, var fileNamesList: Array<String>, var as
     fun getCurrentIndex(): LiveData<Int>{
         return currentIndex
     }
-    fun setCurrentIndex(index: Int){
-        currentIndex.postValue(index)
-    }
-    fun decrCurrentIndex(){
-        Log.d("TAG", "decr index: " + currentIndex.value)
+
+    fun decrementCurrentIndex(){
         var value = currentIndex.value?:0
-        if(value > 0){
-            value -= 1
-        }
-        Log.d("TAG", "decr index post value: " + value)
+        if(value > 0) value -= 1
         currentIndex.postValue(value)
     }
 
-    fun incrCurrentIndex(){
+    fun incrementCurrentIndex(){
         var value = currentIndex.value?:0
-        if(value < cacheFiles.size - 1){
-            value += 1
-        }
+        if(value < cacheFiles.size - 1)value += 1
         currentIndex.postValue(value)
     }
 
@@ -49,19 +40,14 @@ class MainViewModel(var cacheDir: File, var fileNamesList: Array<String>, var as
     }
 
     fun load(){
-        cacheFiles = Array(fileNamesList.size, { it -> "" })
-
+        cacheFiles = Array(fileNamesList.size) { "" }
         viewModelScope.launch(handler){
             withContext(Dispatchers.IO){
-//                var job = async {
                     for ((index, s) in fileNamesList.withIndex()) {
                         launch {
                             loadOne(index)
                         }
                     }
-//                }
-//                job.join()
-//                currentIndex.postValue(0)
                 Log.d("TAG", "loaded all")
             }
         }
@@ -71,28 +57,25 @@ class MainViewModel(var cacheDir: File, var fileNamesList: Array<String>, var as
         return cacheFiles[index]
     }
 
-    suspend fun loadOne(index: Int) = withContext(Dispatchers.IO) {
-        var fileDir = File(cacheDir.absolutePath + "/file${index}")
+    private suspend fun loadOne(index: Int) = withContext(Dispatchers.IO) {
+        val fileDir = File(cacheDir.absolutePath + "/file${index}")
         fileDir.mkdirs()
-        var htmlFile = File.createTempFile("tempHtml${index}", ".html", fileDir)
+        val htmlFile = File.createTempFile("tempHtml${index}", ".html", fileDir)
         htmlFile.deleteOnExit()
-        Log.d("TAG", "cachefilesval: ${Arrays.toString(cacheFiles)}")
         cacheFiles[index] = htmlFile.absolutePath
-        var path = "pages/${fileNamesList[index]}"
-        var document = XWPFDocument(assets.open(path))
+        val path = "pages/${fileNamesList[index]}"
+        val document = XWPFDocument(assets.open(path))
         saveDocToCache(document, htmlFile)
-        Log.d("TAG", "load: ${htmlFile.absolutePath}")
-
         if(currentIndex.value == null){
             currentIndex.postValue(0)
         }
     }
 
 
-    fun saveDocToCache(document: XWPFDocument, htmlFile: File){
+    private fun saveDocToCache(document: XWPFDocument, htmlFile: File){
         htmlFile.parentFile.mkdirs()
         val options = XHTMLOptions.create()
-        var imgFolder = File(cacheDir.absolutePath + "/${htmlFile.name}_img")
+        val imgFolder = File(cacheDir.absolutePath + "/${htmlFile.name}_img")
         imgFolder.mkdirs()
         options.extractor = FileImageExtractor(htmlFile.parentFile)
         val out = FileOutputStream(htmlFile)
@@ -111,11 +94,8 @@ class MainViewModel(var cacheDir: File, var fileNamesList: Array<String>, var as
 
 
     @Suppress("UNCHECKED_CAST")
-    class Factory(var cacheDir: File, var assets: AssetManager) : ViewModelProvider.NewInstanceFactory() {
-
-        var fileNamesList = assets.list("pages")!!
-
-
+    class Factory(private var cacheDir: File, private var assets: AssetManager) : ViewModelProvider.NewInstanceFactory() {
+        private var fileNamesList = assets.list("pages")!!
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             when (modelClass) {
                 MainViewModel::class.java -> MainViewModel(cacheDir, fileNamesList, assets) as T

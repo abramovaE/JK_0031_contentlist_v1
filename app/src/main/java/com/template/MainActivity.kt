@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var intent = Intent(this, MenuActivity::class.java)
+        val intent = Intent(this, MenuActivity::class.java)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
