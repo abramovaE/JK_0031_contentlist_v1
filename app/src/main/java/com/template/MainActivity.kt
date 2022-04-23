@@ -10,20 +10,25 @@ import kotlin.concurrent.schedule
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val intent = Intent(this, MenuActivity::class.java)
+        var intent = Intent(this, MenuActivity::class.java)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val startAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_anim)
-        binding.imageView.startAnimation(startAnimation)
-
         Timer().schedule(1500){
             startActivity(intent)
+            overridePendingTransition(R.anim.to, R.anim.from)
+            binding.imageView.clearAnimation()
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val startAnimation = AnimationUtils.loadAnimation(this, R.anim.icon_anim)
+        binding.imageView.startAnimation(startAnimation)
     }
 }

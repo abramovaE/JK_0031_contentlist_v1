@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">JK_0031_contentlist_v1</string>
+    <string name="version">version</string>
+    <string name="size">size</string>
 </resources>

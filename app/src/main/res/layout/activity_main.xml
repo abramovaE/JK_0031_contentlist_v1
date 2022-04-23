@@ -8,7 +8,10 @@
     android:background="@color/primary_light">
 
     <TextView
-        android:textColor="@color/primary_text"
+        android:textAllCaps="true"
+        android:textSize="20sp"
+        android:textColor="@color/primary_dark"
+        android:shadowColor="@color/primary_light"
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,6 +33,7 @@
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@mipmap/ic_launcher" />
+        android:background="@mipmap/ic_launcher"
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
