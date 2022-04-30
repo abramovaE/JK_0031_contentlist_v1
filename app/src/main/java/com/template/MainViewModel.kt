@@ -12,8 +12,9 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument
 import java.io.File
 import java.io.FileOutputStream
 
-class MainViewModel(private var cacheDir: File, private var fileNamesList: Array<String>, private var assets: AssetManager): ViewModel() {
-
+class MainViewModel(private var cacheDir: File,
+                    private var fileNamesList: Array<String>,
+                    private var assets: AssetManager): ViewModel() {
 
     private lateinit var cacheFiles: Array<String>
     private var currentIndex = MutableLiveData<Int>()
@@ -43,7 +44,7 @@ class MainViewModel(private var cacheDir: File, private var fileNamesList: Array
         cacheFiles = Array(fileNamesList.size) { "" }
         viewModelScope.launch(handler){
             withContext(Dispatchers.IO){
-                    for ((index, s) in fileNamesList.withIndex()) {
+                    for ((index, _) in fileNamesList.withIndex()) {
                         launch {
                             loadOne(index)
                         }

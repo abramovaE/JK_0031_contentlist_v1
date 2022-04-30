@@ -21,9 +21,14 @@ class MainActivity : AppCompatActivity() {
         Timer().schedule(1500){
             startActivity(intent)
             overridePendingTransition(R.anim.to, R.anim.from)
-            binding.imageView.clearAnimation()
+//            binding.imageView.clearAnimation()
             finish()
         }
+    }
+    
+    override fun onPause(){
+        super.onPause()
+        binding.imageView.clearAnimation()
     }
 
     override fun onResume() {
